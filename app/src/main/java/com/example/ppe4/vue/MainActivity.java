@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -18,6 +17,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.ppe4.R;
 import com.example.ppe4.controleur.AccueilControleur;
 import com.example.ppe4.modele.Magasin;
+import com.example.ppe4.modele.Produit;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +51,46 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, BoutiqueActivity.class));
+                if (BoutiqueActivity.listeProduits.size()==0){
+                    //Récupère un fichier json avec tous les produits.
+                    RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+                    String url = "http://192.168.1.77:8082/ppe4/public/api/produit";
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                            new Response.Listener<String>() {
+
+                                @Override
+                                public void onResponse(String response) {
+                                    try{
+                                        JSONObject magasinJSON = new JSONObject(response);
+                                        JSONArray magasinJArray = magasinJSON.getJSONArray("produits");
+
+                                        for (int i = 0; i < magasinJArray.length(); i++){
+                                            JSONObject unProduit = magasinJArray.getJSONObject(i);
+                                            Integer id = unProduit.getInt("id");
+                                            String libelle = unProduit.getString("libelle");
+                                            String description = unProduit.getString("description");
+                                            Integer prixht = unProduit.getInt("prixht");
+                                            Integer stock = unProduit.getInt("stock");
+                                            Produit prod = new Produit(id, libelle, description, prixht, stock);
+                                            BoutiqueActivity.listeProduits.add(prod);
+                                        }
+                                        startActivity(new Intent(MainActivity.this, BoutiqueActivity.class));
+                                    }catch (JSONException e){
+                                        Log.e("MainActivity", "ERREUR :" + e);
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("MainActivity", "ERREUR :" + error.getMessage());
+                        }
+                    }
+                    );
+                    queue.add(stringRequest);
+                }else {
+                    startActivity(new Intent(MainActivity.this, BoutiqueActivity.class));
+                }
+
             }
         });
     }
@@ -64,40 +103,45 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                //Récupère un fichier json avec tous les magasins.
-                RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-                String url = "http://192.168.1.77:8082/ppe4/public/api/magasin";
-                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                        new Response.Listener<String>() {
+                if (MagasinActivity.listeMagasins.size()==0){
+                    //Récupère un fichier json avec tous les magasins.
+                    RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+                    String url = "http://192.168.1.77:8082/ppe4/public/api/magasin";
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                            new Response.Listener<String>() {
 
-                            @Override
-                            public void onResponse(String response) {
-                                try{
-                                    JSONObject magasinJSON = new JSONObject(response);
-                                    JSONArray magasinJArray = magasinJSON.getJSONArray("magasins");
+                                @Override
+                                public void onResponse(String response) {
+                                    try{
+                                        JSONObject magasinJSON = new JSONObject(response);
+                                        JSONArray magasinJArray = magasinJSON.getJSONArray("magasins");
 
-                                    for (int i = 0; i < magasinJArray.length(); i++){
-                                        JSONObject unMag = magasinJArray.getJSONObject(i);
-                                        Integer id = unMag.getInt("id");
-                                        String nom = unMag.getString("nom");
-                                        Double longitude = unMag.getDouble("longitude");
-                                        Double latitude = unMag.getDouble("latitude");
-                                        Magasin mag = new Magasin(id, nom, longitude, latitude);
-                                        MagasinActivity.listeMagasins.add(mag);
+                                        for (int i = 0; i < magasinJArray.length(); i++){
+                                            JSONObject unMag = magasinJArray.getJSONObject(i);
+                                            Integer id = unMag.getInt("id");
+                                            String nom = unMag.getString("nom");
+                                            Double longitude = unMag.getDouble("longitude");
+                                            Double latitude = unMag.getDouble("latitude");
+                                            Magasin mag = new Magasin(id, nom, longitude, latitude);
+                                            MagasinActivity.listeMagasins.add(mag);
+                                        }
+                                        startActivity(new Intent(MainActivity.this, MagasinActivity.class));
+                                    }catch (JSONException e){
+                                        Log.e("MainActivity", "ERREUR :" + e);
                                     }
-                                    startActivity(new Intent(MainActivity.this, MagasinActivity.class));
-                                }catch (JSONException e){
-                                    Log.e("MainActivity", "ERREUR :" + e);
                                 }
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("MainActivity", "ERREUR :" + error.getMessage());
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("MainActivity", "ERREUR :" + error.getMessage());
+                        }
                     }
+                    );
+                    queue.add(stringRequest);
+                }else{
+                    startActivity(new Intent(MainActivity.this, MagasinActivity.class));
                 }
-                );
-                queue.add(stringRequest);
+
             }
         });
     }

@@ -34,6 +34,14 @@ public class Produit {
         this.edition = edition;
     }
 
+    public Produit(int id, String libelle, String description, Integer prixht, Integer stock) {
+        this.id = id;
+        this.libelle = libelle;
+        this.description = description;
+        this.prixht = prixht;
+        this.stock = stock;
+    }
+
     //Accesseur et mutateur
 
     /**
