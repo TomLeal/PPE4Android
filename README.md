@@ -6,6 +6,6 @@ Application mobile qui consomme les webservices du [site marchand](https://githu
 
 ## Avancement
 
-* Site web Symfony : **37 %**
-* Webservices : **30 %**
-* Application Android : **50 %**
+* Site web Symfony : **50 %**
+* Webservices : **50 %**
+* Application Android : **55 %**
